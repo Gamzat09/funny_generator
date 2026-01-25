@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Генератор смешных комбинаций</title>
+    
+    <!-- ИКОНКА -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Мета-теги -->
+    <meta name="description" content="Генератор грамматически правильных смешных предложений">
+    <meta name="keywords" content="генератор, смешные предложения, русский язык, грамматика">
+</head>
+<body>
+    <div class="container">
+        <h1><span class="emoji">🎭</span> Генератор смешных комбинаций</h1>
+        <p class="subtitle">Каждое предложение грамматически верно!</p>
+        
+        <div class="card">
+            <div id="sentence" class="sentence">
+                Нажми кнопку для генерации...
+            </div>
+            <div id="words" class="words" style="display: none;">
+                <strong>Исходные слова:</strong>
+                <div id="word-list"></div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="generate-btn">
+                <span class="emoji">🎲</span> Сгенерировать!
+            </button>
+            <button id="copy-btn">
+                <span class="emoji">📋</span> Скопировать
+            </button>
+            <button id="show-words-btn">
+                <span class="emoji">🔍</span> Показать слова
+            </button>
+        </div>
+        
+        <div class="stats">
+            Сгенерировано: <span id="counter">0</span> предложений | 
+            Всего комбинаций: <span id="total-combinations">810,000</span>
+        </div>
+        
+        <div class="info">
+            <p>✨ Проект использует pymorphy3 для грамматически правильного склонения слов</p>
+        </div>
+    </div>
+
+    <script>
+        // Элементы
+        const generateBtn = document.getElementById('generate-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const showWordsBtn = document.getElementById('show-words-btn');
+        const sentenceEl = document.getElementById('sentence');
+        const wordsEl = document.getElementById('words');
+        const wordListEl = document.getElementById('word-list');
+        const counterEl = document.getElementById('counter');
+        const totalEl = document.getElementById('total-combinations');
+        
+        let showWords = false;
+        
+        // Генерация предложения
+        async function generateSentence() {
+            try {
+                // Анимация загрузки
+                sentenceEl.textContent = 'Генерируем...';
+                sentenceEl.style.opacity = '0.7';
+                
+                const response = await fetch('/generate');
+                const data = await response.json();
+                
+                // Обновляем предложение с анимацией
+                sentenceEl.textContent = data.sentence;
+                sentenceEl.style.opacity = '1';
+                sentenceEl.classList.add('new-sentence');
+                
+                // Убираем класс анимации через время
+                setTimeout(() => {
+                    sentenceEl.classList.remove('new-sentence');
+                }, 500);
+                
+                // Обновляем слова
+                wordListEl.innerHTML = `
+                    Существительное: <strong>${data.words.noun}</strong><br>
+                    Глагол: <strong>${data.words.verb}</strong><br>
+                    Прилагательное: <strong>${data.words.adjective}</strong><br>
+                    Место: <strong>${data.words.place}</strong>
+                `;
+                
+                // Обновляем счётчик
+                counterEl.textContent = data.stats.total;
+                totalEl.textContent = data.stats.combinations.toLocaleString();
+                
+                // Показываем слова если включено
+                wordsEl.style.display = showWords ? 'block' : 'none';
+                
+            } catch (error) {
+                sentenceEl.textContent = 'Ошибка при генерации 😢';
+                console.error('Ошибка:', error);
+            }
+        }
+        
+        // Копирование
+        function copyToClipboard() {
+            const text = sentenceEl.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                // Анимация копирования
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<span class="emoji">✅</span> Скопировано!';
+                copyBtn.style.background = 'linear-gradient(to right, #4CAF50, #2E7D32)';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = 'linear-gradient(to right, #f093fb, #f5576c)';
+                }, 2000);
+            });
+        }
+        
+        // Показать/скрыть слова
+        function toggleWords() {
+            showWords = !showWords;
+            wordsEl.style.display = showWords ? 'block' : 'none';
+            showWordsBtn.innerHTML = showWords 
+                ? '<span class="emoji">👁️</span> Скрыть слова' 
+                : '<span class="emoji">🔍</span> Показать слова';
+        }
+        
+        // События
+        generateBtn.addEventListener('click', generateSentence);
+        copyBtn.addEventListener('click', copyToClipboard);
+        showWordsBtn.addEventListener('click', toggleWords);
+        
+        // Генерация при загрузке
+        window.addEventListener('load', () => {
+            // Задержка для красоты
+            setTimeout(generateSentence, 300);
+            
+            // Запрашиваем общее количество комбинаций
+            fetch('/generate')
+                .then(res => res.json())
+                .then(data => {
+                    totalEl.textContent = data.stats.combinations.toLocaleString();
+                });
+        });
+        
+        // Горячие клавиши
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                generateSentence();
+            }
+            if (e.code === 'KeyC' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                copyToClipboard();
+            }
+        });
+    </script>
+</body>
+</html>
