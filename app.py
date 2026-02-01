@@ -34,13 +34,13 @@ def generate():
             'adjective': adjective,
             'place': place
         },
-        'stats': {  # ← ВОТ ЭТО ОБЯЗАТЕЛЬНО!
+        'stats': {  
             'total': counter,
             'combinations': len(NOUNS) * len(VERBS) * len(ADJECTIVES) * len(PLACES)
         }
     })
 
 if __name__ == '__main__':
-    print("🚀 Сервер запущен!")
+    print("🚀 Основной сайт: http://localhost:5000")
     print(f"📊 Комбинаций: {len(NOUNS) * len(VERBS) * len(ADJECTIVES) * len(PLACES)}")
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000)   

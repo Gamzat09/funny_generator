@@ -1,16 +1,41 @@
-/* Добавь в начало style.css */
+/* style.css - с тёмной темой, автогенерацией, историей и избранным */
 :root {
     --primary: #667eea;
     --secondary: #764ba2;
     --accent: #f56565;
     --light: #f8f9fa;
     --dark: #333;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-color: #333;
+    --shadow: 0 20px 40px rgba(0,0,0,0.2);
+    --stats-bg: rgba(102, 126, 234, 0.1);
+    --hotkey-bg: #f1f3f9;
+    --notification-success: #4CAF50;
+    --notification-error: #f44336;
+    --notification-info: #2196F3;
+}
+
+[data-theme="dark"] {
+    --primary: #8a63d2;
+    --secondary: #c471ed;
+    --accent: #ff6b6b;
+    --light: #1a1a2e;
+    --dark: #f0f0f0;
+    --card-bg: rgba(26, 26, 46, 0.95);
+    --text-color: #f0f0f0;
+    --shadow: 0 20px 40px rgba(0,0,0,0.5);
+    --stats-bg: rgba(138, 99, 210, 0.2);
+    --hotkey-bg: #2d2d44;
+    --notification-success: #2E7D32;
+    --notification-error: #c62828;
+    --notification-info: #1565C0;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 body {
@@ -24,6 +49,7 @@ body {
     padding: 20px;
     animation: gradientBG 15s ease infinite;
     background-size: 400% 400%;
+    color: var(--text-color);
 }
 
 @keyframes gradientBG {
@@ -33,20 +59,46 @@ body {
 }
 
 .container {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     border-radius: 20px;
     padding: 40px;
-    max-width: 800px;
+    max-width: 900px;
     width: 100%;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.5s ease;
+    position: relative;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Кнопка переключения темы */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--stats-bg);
+    transition: transform 0.3s;
+    z-index: 10;
+}
+
+.theme-toggle:hover {
+    transform: rotate(30deg);
 }
 
 h1 {
@@ -58,6 +110,7 @@ h1 {
     background-clip: text;
     color: transparent;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    padding-right: 60px;
 }
 
 .subtitle {
@@ -66,6 +119,58 @@ h1 {
     font-size: 1.2em;
 }
 
+[data-theme="dark"] .subtitle {
+    color: #aaa;
+}
+
+/* Вкладки */
+.tabs {
+    display: flex;
+    margin-top: 20px;
+    border-bottom: 2px solid var(--stats-bg);
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    color: var(--text-color);
+    opacity: 0.7;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-btn.active {
+    opacity: 1;
+    border-bottom: 3px solid var(--primary);
+    color: var(--primary);
+    background: var(--stats-bg);
+}
+
+.tab-btn:hover {
+    opacity: 1;
+    background: var(--stats-bg);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Карточка с фразой */
 .card {
     background: var(--light);
     border-radius: 15px;
@@ -73,11 +178,19 @@ h1 {
     margin: 30px 0;
     border: 3px dashed var(--primary);
     transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
 }
 
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+    border: 3px dashed var(--accent);
+}
+
+[data-theme="dark"] .card:hover {
+    box-shadow: 0 15px 30px rgba(138, 99, 210, 0.3);
+    border: 3px dashed #ff6b6b;
 }
 
 .sentence {
@@ -87,10 +200,18 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--dark);
+    color: var(--text-color);
     padding: 20px;
     transition: all 0.3s ease;
     animation: pulse 2s infinite;
+    cursor: pointer;
+    border-radius: 10px;
+    user-select: text;
+    text-align: center;
+}
+
+.sentence:hover {
+    background: rgba(var(--primary), 0.05);
 }
 
 @keyframes pulse {
@@ -99,18 +220,65 @@ h1 {
     100% { transform: scale(1); }
 }
 
+/* Кнопка избранного */
+.favorite-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 5;
+}
+
+.favorite-btn:hover {
+    background: rgba(255, 65, 108, 0.1);
+    transform: scale(1.1);
+}
+
+.favorite-btn.active {
+    color: #ff416c;
+    animation: heartbeat 0.5s;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
 .words {
-    background: white;
+    background: var(--card-bg);
     border-radius: 10px;
     padding: 15px;
-    color: #555;
+    color: var(--text-color);
     text-align: left;
     border-left: 4px solid var(--secondary);
     margin-top: 20px;
     font-size: 0.9em;
 }
 
-button {
+/* Кнопки действий */
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+button:not(.theme-toggle):not(.tab-btn):not(.favorite-btn):not(.remove-btn):not(.notification-close) {
     background: linear-gradient(to right, var(--primary), var(--secondary));
     color: white;
     border: none;
@@ -118,21 +286,25 @@ button {
     font-size: 1.3em;
     border-radius: 50px;
     cursor: pointer;
-    margin: 10px;
     transition: all 0.3s ease;
     font-weight: bold;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    min-width: 200px;
 }
 
-button:hover {
+button:not(.theme-toggle):not(.tab-btn):not(.favorite-btn):not(.remove-btn):not(.notification-close):hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
-button:active {
+[data-theme="dark"] button:not(.theme-toggle):not(.tab-btn):not(.favorite-btn):not(.remove-btn):not(.notification-close):hover {
+    box-shadow: 0 10px 20px rgba(138, 99, 210, 0.4);
+}
+
+button:not(.theme-toggle):not(.tab-btn):not(.favorite-btn):not(.remove-btn):not(.notification-close):active {
     transform: translateY(-2px);
 }
 
@@ -140,15 +312,251 @@ button:active {
     background: linear-gradient(to right, #f093fb, #f5576c);
 }
 
+[data-theme="dark"] #copy-btn {
+    background: linear-gradient(to right, #c471ed, #ff6b6b);
+}
+
+#auto-btn.active {
+    background: linear-gradient(to right, #ff416c, #ff4b2b) !important;
+    animation: pulse-red 1s infinite alternate;
+}
+
+@keyframes pulse-red {
+    from { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.4); }
+    to { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); }
+}
+
+/* Прогресс-бар */
+.progress-container {
+    margin-top: 15px;
+    display: none;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.progress-track {
+    background: var(--stats-bg);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #ff416c, #ff4b2b);
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: width 8s linear;
+}
+
+/* Статистика */
 .stats {
     margin-top: 30px;
     padding: 15px;
-    background: rgba(102, 126, 234, 0.1);
+    background: var(--stats-bg);
     border-radius: 10px;
     color: var(--secondary);
     font-size: 1em;
+    line-height: 1.6;
 }
 
+#auto-status {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+/* Секция горячих клавиш */
+.hotkeys-info {
+    margin: 25px 0;
+    padding: 20px;
+    background: var(--hotkey-bg);
+    border-radius: 15px;
+    text-align: left;
+}
+
+.hotkeys-info h3 {
+    margin-bottom: 15px;
+    color: var(--secondary);
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hotkeys-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.hotkey-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.hotkey-item:hover {
+    transform: translateX(5px);
+}
+
+.hotkey-item kbd {
+    background: var(--primary);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9em;
+    min-width: 70px;
+    text-align: center;
+    display: inline-block;
+}
+
+.hotkey-item .mouse-hint {
+    background: var(--accent);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    min-width: 70px;
+    text-align: center;
+}
+
+.hotkey-item span:last-child {
+    color: var(--text-color);
+    font-size: 0.9em;
+    flex-grow: 1;
+}
+
+/* История и избранное */
+.section-card {
+    background: var(--light);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid var(--primary);
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.section-card h3 {
+    margin-top: 0;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--stats-bg);
+}
+
+.empty-message {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+    font-style: italic;
+    font-size: 1.1em;
+}
+
+.history-item, .favorite-item {
+    padding: 12px;
+    margin: 8px 0;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border-left: 3px solid var(--secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.history-item:hover, .favorite-item:hover {
+    transform: translateX(5px);
+    background: var(--stats-bg);
+}
+
+.history-text, .favorite-text {
+    flex-grow: 1;
+    padding: 5px;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+.history-time {
+    font-size: 0.8em;
+    color: #888;
+    margin-left: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+}
+
+.remove-btn:hover {
+    background: rgba(255, 107, 107, 0.1);
+}
+
+/* Информационный блок */
+.info {
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--stats-bg);
+    border-radius: 10px;
+    color: var(--text-color);
+    font-size: 0.9em;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.info p {
+    margin: 8px 0;
+}
+
+.info a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.info a:hover {
+    text-decoration: underline;
+}
+
+/* Эмодзи */
 .emoji {
     font-size: 1.5em;
     display: inline-block;
@@ -160,25 +568,59 @@ button:active {
     to { transform: translateY(-10px); }
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-    
-    h1 {
-        font-size: 2em;
-    }
-    
-    .sentence {
-        font-size: 1.6em;
-        min-height: 100px;
-    }
-    
-    button {
-        padding: 15px 25px;
-        font-size: 1.1em;
-    }
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 300px;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+}
+
+.notification.success {
+    background: var(--notification-success);
+}
+
+.notification.error {
+    background: var(--notification-error);
+}
+
+.notification.info {
+    background: var(--notification-info);
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 15px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
 }
 
 /* Эффект для нового предложения */
@@ -189,4 +631,167 @@ button:active {
 @keyframes highlight {
     0% { background-color: rgba(102, 126, 234, 0.3); }
     100% { background-color: transparent; }
+}
+
+[data-theme="dark"] .new-sentence {
+    animation: highlightDark 0.5s ease;
+}
+
+@keyframes highlightDark {
+    0% { background-color: rgba(138, 99, 210, 0.4); }
+    100% { background-color: transparent; }
+}
+
+/* Анимация клика на предложение */
+@keyframes click-feedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.98); }
+    100% { transform: scale(1); }
+}
+
+.sentence.clicked {
+    animation: click-feedback 0.15s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 2em;
+        padding-right: 50px;
+    }
+    
+    .theme-toggle {
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5em;
+    }
+    
+    .sentence {
+        font-size: 1.6em;
+        min-height: 100px;
+        padding: 15px;
+    }
+    
+    .favorite-btn {
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5em;
+    }
+    
+    .buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    button:not(.theme-toggle):not(.tab-btn):not(.favorite-btn):not(.remove-btn):not(.notification-close) {
+        padding: 15px;
+        font-size: 1.1em;
+        min-width: unset;
+        width: 100%;
+    }
+    
+    .hotkeys-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .notification {
+        min-width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        justify-content: center;
+        border-bottom: none;
+        border-right: 3px solid transparent;
+        border-radius: 8px;
+        margin-bottom: 5px;
+    }
+    
+    .tab-btn.active {
+        border-right: 3px solid var(--primary);
+        border-bottom: none;
+    }
+    
+    .history-item, .favorite-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .history-time {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+    
+    .remove-btn {
+        align-self: flex-end;
+        margin-top: 5px;
+    }
+    
+    .card {
+        padding: 20px 15px;
+    }
+    
+    .sentence {
+        font-size: 1.4em;
+        padding: 10px;
+    }
+}
+
+/* Специальные стили для скроллбара */
+.section-card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.section-card::-webkit-scrollbar-track {
+    background: var(--stats-bg);
+    border-radius: 4px;
+}
+
+.section-card::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+.section-card::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* Анимация при переключении вкладок */
+@keyframes tabSwitch {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-content.active {
+    animation: tabSwitch 0.3s ease;
+}
+
+/* Подсветка активной фразы в истории/избранном */
+.history-item.active, .favorite-item.active {
+    border-left: 3px solid var(--accent);
+    background: var(--stats-bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .history-item.active,
+[data-theme="dark"] .favorite-item.active {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
