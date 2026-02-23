@@ -1,80 +1,25 @@
 import pymorphy3
+from functools import lru_cache
+from data import PLACES as DATA_PLACES
 
 morph = pymorphy3.MorphAnalyzer()
 
-VERBS_PAST = {
-    'готовить': {'masc': 'готовил', 'femn': 'готовила', 'neut': 'готовило'},
-    'кататься': {'masc': 'катался', 'femn': 'каталась', 'neut': 'каталось'},
-    'танцевать': {'masc': 'танцевал', 'femn': 'танцевала', 'neut': 'танцевало'},
-    'смотреть': {'masc': 'смотрел', 'femn': 'смотрела', 'neut': 'смотрело'},
-    'бегать': {'masc': 'бегал', 'femn': 'бегала', 'neut': 'бегало'},
-    'прыгать': {'masc': 'прыгал', 'femn': 'прыгала', 'neut': 'прыгало'},
-    'плавать': {'masc': 'плавал', 'femn': 'плавала', 'neut': 'плавало'},
-    'читать': {'masc': 'читал', 'femn': 'читала', 'neut': 'читало'},
-    'писать': {'masc': 'писал', 'femn': 'писала', 'neut': 'писало'},
-    'рисовать': {'masc': 'рисовал', 'femn': 'рисовала', 'neut': 'рисовало'},
-    'спать': {'masc': 'спал', 'femn': 'спала', 'neut': 'спало'},
-    'петь': {'masc': 'пел', 'femn': 'пела', 'neut': 'пело'},
-    'играть': {'masc': 'играл', 'femn': 'играла', 'neut': 'играло'},
-    'варить': {'masc': 'варил', 'femn': 'варила', 'neut': 'варило'},
-    'шутить': {'masc': 'шутил', 'femn': 'шутила', 'neut': 'шутило'},
-    'летать': {'masc': 'летал', 'femn': 'летала', 'neut': 'летало'},
-    'программировать': {'masc': 'программировал', 'femn': 'программировала', 'neut': 'программировало'},
-    'размышлять': {'masc': 'размышлял', 'femn': 'размышляла', 'neut': 'размышляло'},
-    'путешествовать': {'masc': 'путешествовал', 'femn': 'путешествовала', 'neut': 'путешествовало'},
-    'флиртовать': {'masc': 'флиртовал', 'femn': 'флиртовала', 'neut': 'флиртовало'},
-    'загорать': {'masc': 'загорал', 'femn': 'загорала', 'neut': 'загорало'},
-    'медитировать': {'masc': 'медитировал', 'femn': 'медитировала', 'neut': 'медитировало'},
-    'парковать': {'masc': 'парковал', 'femn': 'парковала', 'neut': 'парковало'},
-    'исследовать': {'masc': 'исследовал', 'femn': 'исследовала', 'neut': 'исследовало'},
-    'строить': {'masc': 'строил', 'femn': 'строила', 'neut': 'строило'},
-    'разрушать': {'masc': 'разрушал', 'femn': 'разрушала', 'neut': 'разрушало'},
-    'создавать': {'masc': 'создавал', 'femn': 'создавала', 'neut': 'создавало'},
-    'изучать': {'masc': 'изучал', 'femn': 'изучала', 'neut': 'изучало'},
-    'обучать': {'masc': 'обучал', 'femn': 'обучала', 'neut': 'обучало'},
-    'кодировать': {'masc': 'кодировал', 'femn': 'кодировала', 'neut': 'кодировало'},
-    
-    # ВОТ ИСПРАВЛЕНИЯ:
-    'смеяться': {'masc': 'смеялся', 'femn': 'смеялась', 'neut': 'смеялось'},
-    'плакать': {'masc': 'плакал', 'femn': 'плакала', 'neut': 'плакало'},
-    'мечтать': {'masc': 'мечтал', 'femn': 'мечтала', 'neut': 'мечтало'},
-}
 
-# Автоматическая функция для глаголов, которых нет в словаре
-def get_verb_in_past(verb, gender):
-    """Возвращает глагол в прошедшем времени"""
-    verb_lower = verb.lower()
-    
-    # 1. Проверяем словарь
-    if verb_lower in VERBS_PAST:
-        return VERBS_PAST[verb_lower][gender]
-    
-    # 2. Для возвратных глаголов на -ться
-    if verb_lower.endswith('ться'):
-        stem = verb_lower[:-4]
-        if gender == 'masc':
-            return stem + 'лся'
-        elif gender == 'femn':
-            return stem + 'лась'
-        else:
-            return stem + 'лось'
-    
-    # 3. Для обычных глаголов на -ть
-    elif verb_lower.endswith('ть'):
-        stem = verb_lower[:-2]
-        if gender == 'masc':
-            return stem + 'л'
-        elif gender == 'femn':
-            return stem + 'ла'
-        else:
-            return stem + 'ло'
-    
-    # 4. Запасной вариант
-    return verb
+# ---------------------------
+# КЭШ ДЛЯ УСКОРЕНИЯ
+# ---------------------------
 
-# Специальные формы для мест с правильными предлогами
-SPECIAL_PLACES = {
-    # Места с предлогом "В"
+@lru_cache(maxsize=1000)
+def parse_word(word: str):
+    """Кэшированный разбор слова"""
+    return morph.parse(word)[0]
+
+
+# ---------------------------
+# ПРЕДЛОГИ ДЛЯ МЕСТ
+# ---------------------------
+
+PLACES_WITH_PREP = {
     'холодильник': ('в', 'холодильнике'),
     'университет': ('в', 'университете'),
     'космос': ('в', 'космосе'),
@@ -84,10 +29,12 @@ SPECIAL_PLACES = {
     'ванна': ('в', 'ванне'),
     'интернет': ('в', 'интернете'),
     'лифт': ('в', 'лифте'),
+    'парк': ('в', 'парке'),
     'кинотеатр': ('в', 'кинотеатре'),
     'супермаркет': ('в', 'супермаркете'),
     'стадион': ('на', 'стадионе'),
     'музей': ('в', 'музее'),
+    'пляж': ('на', 'пляже'),
     'самолёт': ('в', 'самолёте'),
     'поезд': ('в', 'поезде'),
     'метро': ('в', 'метро'),
@@ -103,10 +50,6 @@ SPECIAL_PLACES = {
     'аквапарк': ('в', 'аквапарке'),
     'зоопарк': ('в', 'зоопарке'),
     'планетарий': ('в', 'планетарии'),
-    
-    # Места с предлогом "НА"
-    'парк': ('в', 'парке'),
-    'пляж': ('на', 'пляже'),
     'горка': ('на', 'горке'),
     'карусель': ('на', 'карусели'),
     'эскалатор': ('на', 'эскалаторе'),
@@ -114,8 +57,6 @@ SPECIAL_PLACES = {
     'улица': ('на', 'улице'),
     'остров': ('на', 'острове'),
     'гора': ('на', 'горе'),
-    
-    # Особые случаи
     'лес': ('в', 'лесу'),
     'сад': ('в', 'саду'),
     'берег': ('на', 'берегу'),
@@ -125,40 +66,53 @@ SPECIAL_PLACES = {
     'пустыня': ('в', 'пустыне'),
 }
 
-def get_place_with_preposition(place):
-    """Возвращает правильный предлог и место в нужном падеже"""
-    place_lower = place.lower()
-    
-    # Если место есть в специальном словаре
-    if place_lower in SPECIAL_PLACES:
-        preposition, place_form = SPECIAL_PLACES[place_lower]
-        return preposition, place_form
-    
-    # Для остальных мест используем "в" + предложный падеж
-    try:
-        place_parsed = morph.parse(place)[0]
-        place_form = place_parsed.inflect({'loct'}).word
-        return 'в', place_form
-    except:
-        return 'в', place
 
-def make_sentence(noun, verb, adjective, place):
-    """Собираем грамматически правильное предложение"""
-    
-    # 1. Существительное
-    noun_parsed = morph.parse(noun)[0]
-    gender = noun_parsed.tag.gender
-    noun_word = noun_parsed.inflect({'nomn'}).word
-    
-    # 2. Прилагательное
-    adj_parsed = morph.parse(adjective)[0]
-    adj_word = adj_parsed.inflect({gender, 'nomn'}).word
-    
-    # 3. Глагол (используем новую функцию)
-    verb_word = get_verb_in_past(verb, gender)
-    
-    # 4. Место с правильным предлогом
+def get_place_with_preposition(place: str):
+    """Возвращает правильный предлог и форму места"""
+
+    place_lower = place.lower()
+
+    if place_lower in PLACES_WITH_PREP:
+        return PLACES_WITH_PREP[place_lower]
+
+    # Фоллбэк через pymorphy3
+    parsed = parse_word(place_lower)
+    inflected = parsed.inflect({'loct'})
+    place_form = inflected.word if inflected else place_lower
+
+    return 'в', place_form
+
+
+# ---------------------------
+# ОСНОВНАЯ ФУНКЦИЯ
+# ---------------------------
+
+def make_sentence(noun: str, verb: str, adjective: str, place: str):
+    """Собирает грамматически корректное предложение"""
+
+    # 1️⃣ Существительное
+    noun_parsed = parse_word(noun)
+    gender = noun_parsed.tag.gender or 'masc'
+
+    noun_inflected = noun_parsed.inflect({'nomn'})
+    noun_word = noun_inflected.word if noun_inflected else noun
+
+    # 2️⃣ Прилагательное
+    adj_parsed = parse_word(adjective)
+    adj_inflected = adj_parsed.inflect({gender, 'nomn'})
+    adj_word = adj_inflected.word if adj_inflected else adjective
+
+    # 3️⃣ Глагол в прошедшем времени через pymorphy3
+    verb_parsed = parse_word(verb)
+    verb_inflected = verb_parsed.inflect({'past', gender})
+
+    if verb_inflected:
+        verb_word = verb_inflected.word
+    else:
+        verb_word = verb
+
+    # 4️⃣ Место
     preposition, place_word = get_place_with_preposition(place)
-    
-    # 5. Собираем предложение
+
+    # 5️⃣ Финальная сборка
     return f"{adj_word.capitalize()} {noun_word} {verb_word} {preposition} {place_word}."
