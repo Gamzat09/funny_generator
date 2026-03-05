@@ -19,6 +19,10 @@
 </head>
 <body>
     <div id="cosmos-starfield"></div>
+    <div id="storm-bg">
+        <div class="lightning-flash"></div>
+    </div>
+    <div id="aurora-bg"></div>
     <div class="container">
         <button id="theme-toggle" class="theme-toggle" aria-label="Переключить тему">
             <span class="theme-icon active" id="sun-icon">☀️</span>
@@ -224,7 +228,111 @@
 
         createStarfield();
 
-        // === ТЕМЫ ===
+        // === ГРОЗА ===
+        function createStorm() {
+            const bg = document.getElementById('storm-bg');
+            // Remove old rain/bolts
+            bg.querySelectorAll('.raindrop, .lightning-bolt').forEach(e => e.remove());
+
+            // Rain
+            for (let i = 0; i < 120; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                const height = Math.random() * 60 + 15;
+                const duration = (Math.random() * 0.6 + 0.5).toFixed(2);
+                const delay = (Math.random() * 3).toFixed(2);
+                drop.style.cssText = `
+                    left: ${Math.random() * 105}%;
+                    height: ${height}px;
+                    animation-duration: ${duration}s;
+                    animation-delay: -${delay}s;
+                    opacity: ${Math.random() * 0.4 + 0.2};
+                `;
+                bg.appendChild(drop);
+            }
+
+            // Lightning bolts
+            for (let i = 0; i < 3; i++) {
+                const bolt = document.createElement('div');
+                bolt.className = 'lightning-bolt';
+                const height = Math.random() * 200 + 150;
+                const delay = (i * 2.5).toFixed(1);
+                bolt.style.cssText = `
+                    left: ${20 + Math.random() * 60}%;
+                    height: ${height}px;
+                    animation-delay: ${delay}s;
+                `;
+                bg.appendChild(bolt);
+            }
+        }
+
+        // === СЕВЕРНОЕ СИЯНИЕ ===
+        function createAurora() {
+            const bg = document.getElementById('aurora-bg');
+            bg.innerHTML = '';
+
+            // Aurora curtains
+            const colors = [
+                'rgba(0, 229, 176, 0.55)',
+                'rgba(0, 212, 255, 0.45)',
+                'rgba(168, 85, 247, 0.5)',
+                'rgba(0, 180, 130, 0.4)',
+                'rgba(100, 50, 200, 0.35)',
+                'rgba(0, 255, 200, 0.3)',
+            ];
+            colors.forEach((color, i) => {
+                const curtain = document.createElement('div');
+                curtain.className = 'aurora-curtain';
+                const topPct = 5 + i * 5;
+                const heightPx = 80 + Math.random() * 120;
+                const duration = (14 + i * 3.5).toFixed(1);
+                const delay = -(i * 4).toFixed(1);
+                curtain.style.cssText = `
+                    top: ${topPct}%;
+                    height: ${heightPx}px;
+                    background: radial-gradient(ellipse 80% 100% at 50% 50%, ${color}, transparent);
+                    animation-duration: ${duration}s;
+                    animation-delay: -${delay}s;
+                `;
+                bg.appendChild(curtain);
+            });
+
+            // Stars
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'aurora-star';
+                const size = Math.random() * 2 + 0.5;
+                const dur = (Math.random() * 3 + 1.5).toFixed(1);
+                star.style.cssText = `
+                    width: ${size}px; height: ${size}px;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 60}%;
+                    animation-duration: ${dur}s;
+                    animation-delay: -${(Math.random() * 4).toFixed(1)}s;
+                `;
+                bg.appendChild(star);
+            }
+
+            // Snow
+            for (let i = 0; i < 60; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                const size = Math.random() * 3 + 1;
+                const dur = (Math.random() * 8 + 8).toFixed(1);
+                const delay = -(Math.random() * 12).toFixed(1);
+                flake.style.cssText = `
+                    width: ${size}px; height: ${size}px;
+                    left: ${Math.random() * 100}%;
+                    animation-duration: ${dur}s;
+                    animation-delay: ${delay}s;
+                    opacity: ${Math.random() * 0.6 + 0.2};
+                `;
+                bg.appendChild(flake);
+            }
+        }
+
+        createStorm();
+        createAurora();
         const THEMES = [
             {
                 id: 'light',
@@ -302,13 +410,28 @@
                 emoji: '🍃',
                 description: 'Свежая мятная прохлада',
                 preview: ['#00c9a7', '#00e5cc', '#f0fffc', '#e0fff8']
+            },
+            {
+                id: 'storm',
+                name: 'Гроза',
+                emoji: '⛈️',
+                description: 'Дождь, молнии, гром',
+                preview: ['#7eb8f7', '#4a90d9', '#0d1b2a', '#060e1c']
+            },
+            {
+                id: 'aurora',
+                name: 'Сияние',
+                emoji: '🌌',
+                description: 'Северное сияние и снег',
+                preview: ['#00e5b0', '#a855f7', '#050c14', '#0a1520']
             }
         ];
 
         const THEME_NAMES = {
             light: 'Светлая', dark: 'Тёмная', sunset: 'Закат',
             ocean: 'Океан', forest: 'Лес', sakura: 'Сакура',
-            neon: 'Неон', cosmos: 'Космос', rainbow: 'Радуга', candy: 'Конфетки', mint: 'Мята'
+            neon: 'Неон', cosmos: 'Космос', rainbow: 'Радуга', candy: 'Конфетки', mint: 'Мята',
+            storm: 'Гроза', aurora: 'Сияние'
         };
 
         // === Управление темой ===
@@ -339,7 +462,7 @@
         }
         
         function updateThemeIcon(theme) {
-            if (theme === 'dark' || theme === 'neon' || theme === 'cosmos') {
+            if (theme === 'dark' || theme === 'neon' || theme === 'cosmos' || theme === 'storm' || theme === 'aurora') {
                 sunIcon.classList.remove('active');
                 moonIcon.classList.add('active');
                 themeToggle.setAttribute('aria-label', 'Включить светлую тему');
@@ -362,8 +485,8 @@
 
             grid.innerHTML = THEMES.map(theme => `
                 <div class="theme-card ${theme.id === currentTheme ? 'active' : ''}" 
-                     data-theme-id="${theme.id}"
-                     title="${theme.description}">
+                    data-theme-id="${theme.id}"
+                    title="${theme.description}">
                     <div class="theme-preview">
                         ${theme.preview.map(c => `<div class="preview-swatch" style="background:${c}"></div>`).join('')}
                     </div>
